@@ -394,8 +394,8 @@
           <el-col :xl="8">
             <el-form-item
               :label="$t('pmedicines.Unit')"
-              prop="outstoreunit"
-              :rules="[{ required: true, message: '请选择投药单位' }]"
+              prop="unit"
+              :rules="[{ required: true, message: '请选择单位' }]"
             >
               <el-select v-model="editDrugInfo.unit" filterable @change="outUnitChange">
                 <el-option
@@ -526,10 +526,10 @@
           <el-col :xl="8">
             <el-form-item
               :label="$t('pmedicines.Unit')"
-              prop="outstoreunit"
-              :rules="[{ required: true, message: '请选择投药单位' }]"
+              prop="unit"
+              :rules="[{ required: true, message: '请选择单位' }]"
             >
-              <el-select v-model="editDrugInfo.unit" filterable @change="outUnitChange">
+              <el-select v-model="insertDrugInfo.unit" filterable @change="outUnitChange">
                 <el-option
                   v-for="(unit,index) in unitList"
                   :label="unit.name"

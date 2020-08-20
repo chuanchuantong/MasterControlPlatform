@@ -393,11 +393,11 @@
         <el-row :gutter="10">
           <el-col :xl="8">
             <el-form-item
-              :label="$t('pmedicines.InstoreUnitName')"
-              prop="instoreunit"
-              :rules="[{ required: true, message: '请选择出入库单位' }]"
+              :label="$t('pmedicines.Unit')"
+              prop="unit"
+              :rules="[{ required: true, message: '请选择单位' }]"
             >
-              <el-select v-model="editDrugInfo.instoreunit" filterable>
+              <el-select v-model="editDrugInfo.unit" filterable @change="outUnitChange">
                 <el-option
                   v-for="(unit,index) in unitList"
                   :label="unit.name"
@@ -525,12 +525,12 @@
 
         <el-row :gutter="10">
           <el-col :xl="8">
-            <el-form-item
-              :label="$t('pmedicines.InstoreUnitName')"
-              prop="instoreunit"
-              :rules="[{ required: true, message: '请选择出入库单位' }]"
+          <el-form-item
+              :label="$t('pmedicines.Unit')"
+              prop="unit"
+              :rules="[{ required: true, message: '请选择单位' }]"
             >
-              <el-select v-model="insertDrugInfo.instoreunit" filterable>
+              <el-select v-model="insertDrugInfo.unit" filterable @change="outUnitChange">
                 <el-option
                   v-for="(unit,index) in unitList"
                   :label="unit.name"
@@ -625,8 +625,8 @@
         <el-row :gutter="10">
           <el-col :xl="8">
             <el-form-item
-              :label="$t('pmedicines.InstoreUnitName')"
-            >{{drugsDetailInfo.instoreunitname}}</el-form-item>
+              :label="$t('pmedicines.Unit')"
+            >{{drugsDetailInfo.unitname}}</el-form-item>
           </el-col>
           <el-col :xl="8">
             
