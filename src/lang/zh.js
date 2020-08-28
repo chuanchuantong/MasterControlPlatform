@@ -75,7 +75,9 @@ export default {
     Goods:'商品',
     Stock:'库存',
     Warm:'洗澡',
-    Cosmetology:'美容'
+    Cosmetology:'美容',
+    Deworming:'驱虫',
+    Vaccines:'疫苗'
   },
   navbar: {
     dashboard: '首页',
@@ -241,7 +243,9 @@ export default {
     SpecificInMath:'产品规格换算',
     Remark:'备注',
     Unit:'单位',
-    DrugDetail:'药品详情'
+    DrugDetail:'药品详情',
+    Vaccinatetimes:'接种间隔',
+    Vaccinateinterval:'接种次数',
   },
   common: {
     yes: '是',

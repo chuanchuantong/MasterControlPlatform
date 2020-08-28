@@ -128,24 +128,52 @@
                 :label="$t('pmedicines.CategoryName')"
                 width="180"
               ></el-table-column>
+              <!-- 成本价 -->
+              <el-table-column
+                prop="instoreprice"
+                :label="$t('pmedicines.InstorePrice')"
+                width="120"
+              >
+                <template slot-scope="scope">{{scope.row.instoreprice | currency('$')}}</template>
+              </el-table-column>
               <!-- 会员价 -->
-              <el-table-column prop="memberprice" :label="$t('pmedicines.MemberPrice')" width="130">
+              <el-table-column prop="memberprice" :label="$t('pmedicines.MemberPrice')" width="120">
                 <template slot-scope="scope">{{scope.row.memberprice | currency('$')}}</template>
               </el-table-column>
               <!-- 销售价 -->
               <el-table-column
                 prop="outstoreprice"
                 :label="$t('pmedicines.OutstorePrice')"
-                width="130"
+                width="120"
               >
                 <template slot-scope="scope">{{scope.row.outstoreprice | currency('$')}}</template>
               </el-table-column>
+              <!-- 库存 -->
+              <el-table-column prop="count" :label="$t('pmedicines.Count')" width="80">
+                <template slot-scope="scope">
+                  <span>{{scope.row.count}}</span>
+                </template>
+              </el-table-column>
+              <!-- 投药单位 -->
+              <el-table-column
+                prop="unitname"
+                :show-overflow-tooltip="true"
+                :label="$t('pmedicines.UnitName')"
+                width="80"
+              ></el-table-column>
               <!-- 入库单位 -->
               <el-table-column
                 prop="instoreunitname"
                 :show-overflow-tooltip="true"
                 :label="$t('pmedicines.InstoreUnitName')"
-                width="100"
+                width="120"
+              ></el-table-column>
+              <!-- 出库单位 -->
+              <el-table-column
+                prop="outstoreunitname"
+                :show-overflow-tooltip="true"
+                :label="$t('pmedicines.OutstoreUnitName')"
+                width="80"
               ></el-table-column>
               <!-- 是否打折 -->
               <el-table-column
@@ -162,6 +190,10 @@
                     style="color:red;font-size:18px;"
                   ></i>
                   <i v-else class="iconfont icon-cuohao"></i>
+                  <!-- <el-tag
+                    :type="scope.row.donotdiscount? 'primary' : 'danger'"
+                    disable-transitions
+                  >{{scope.row.donotdiscount?$t('common.yes'):$t('common.no')}}</el-tag>-->
                 </template>
               </el-table-column>
               <!-- 可订 -->
@@ -298,7 +330,7 @@
     </el-dialog>
 
     <el-dialog
-      title="编辑美容"
+      :title="$t('pmedicines.EditDrug')"
       :visible.sync="editDrugVisible"
       :close-on-click-modal="false"
       width="60%"
@@ -347,11 +379,88 @@
               <el-input v-model="editDrugInfo.englishname" />
             </el-form-item>
           </el-col>
+                    <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.DosingWay')">
+              <el-select
+                v-model="editDrugInfo.dosingway"
+                filterable
+                @change="medicateMethodsChange"
+              >
+                <el-option
+                  v-for="(medicateMethods,index) in medicateMethodsList"
+                  :label="medicateMethods.name"
+                  :value="medicateMethods.id"
+                  :key="index"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="10">
           <el-col :xl="8">
             <el-form-item :label="$t('pmedicines.CommonName')">
               <el-input v-model="editDrugInfo.commonname" />
             </el-form-item>
           </el-col>
+          <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.Brand')">
+              <el-select v-model="editDrugInfo.brandid" filterable @change="productChange">
+                <el-option
+                  v-for="(productInfo,index) in productList"
+                  :label="productInfo.companyname"
+                  :value="productInfo.id"
+                  :key="index"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.ProviderName')">
+              <el-select v-model="editDrugInfo.providerid" filterable>
+                <el-option
+                  v-for="(supplierInfo,index) in supplierList"
+                  :label="supplierInfo.companyname"
+                  :value="supplierInfo.id"
+                  :key="index"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="10">
+          <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.UsingMethod')">
+              <el-select v-model="editDrugInfo.usingmethod" filterable>
+                <el-option
+                  v-for="(usageMethods,index) in usageMethodsList"
+                  :label="usageMethods.name"
+                  :value="usageMethods.id"
+                  :key="index"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.Vaccinatetimes')">
+              <el-select v-model="editDrugInfo.vaccinatetimes" filterable>
+                <el-option
+                  v-for="(vaccinateTimes,index) in vaccinateTimesList"
+                  :label="vaccinateTimes.name"
+                  :value="vaccinateTimes.id"
+                  :key="index"
+                />
+              </el-select>
+            </el-form-item>
+
+          </el-col>
+          <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.Vaccinateinterval')">
+              <el-input type="number" v-model="editDrugInfo.vaccinateinterval" />
+            </el-form-item>
+          </el-col>
+
         </el-row>
 
         <el-row :gutter="10">
@@ -366,8 +475,26 @@
             </el-form-item>
           </el-col>
           <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.InstorePrice')">
+              <el-input disabled type="number" v-model="editDrugInfo.instoreprice" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="10">
+          <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.CostPrice')">
+              <el-input type="number" v-model="editDrugInfo.costprice" />
+            </el-form-item>
+          </el-col>
+          <el-col :xl="8">
             <el-form-item :label="$t('pmedicines.DoNotDiscount')">
               <el-switch v-model="editDrugInfo.donotdiscount"></el-switch>
+            </el-form-item>
+          </el-col>
+          <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.AllowSaleForNoneStock')">
+              <el-switch v-model="editDrugInfo.allowsalefornonestock"></el-switch>
             </el-form-item>
           </el-col>
         </el-row>
@@ -393,9 +520,25 @@
         <el-row :gutter="10">
           <el-col :xl="8">
             <el-form-item
+              :label="$t('pmedicines.InstoreUnitName')"
+              prop="instoreunit"
+              :rules="[{ required: true, message: '请选择出入库单位' }]"
+            >
+              <el-select v-model="editDrugInfo.instoreunit" filterable @change="insertUnitChange">
+                <el-option
+                  v-for="(unit,index) in unitList"
+                  :label="unit.name"
+                  :value="unit.id"
+                  :key="index"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :xl="8">
+            <el-form-item
               :label="$t('pmedicines.Unit')"
-              prop="unit"
-              :rules="[{ required: true, message: '请选择单位' }]"
+              prop="outstoreunit"
+              :rules="[{ required: true, message: '请选择投药单位' }]"
             >
               <el-select v-model="editDrugInfo.unit" filterable @change="outUnitChange">
                 <el-option
@@ -408,7 +551,28 @@
             </el-form-item>
           </el-col>
           <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.SpecificInMath')" class="specificInMath">
+              1
+              {{instoreUnitName}}
+              =
+              <el-input type="number" v-model="editDrugInfo.specificmath" />
+              {{outstoreUnitName}}
+            </el-form-item>
           </el-col>
+        </el-row>
+
+        <el-row :gutter="10">
+          <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.Specific')">
+              <el-input v-model="editDrugInfo.specific" />
+            </el-form-item>
+          </el-col>
+          <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.Count')">
+              <el-input disabled v-model="editDrugInfo.count"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :xl="8"></el-col>
         </el-row>
       </el-form>
       <el-form :model="editDrugInfo" :label-width="formLabelWidth">
@@ -430,7 +594,7 @@
       </div>
     </el-dialog>
     <el-dialog
-      title="新增美容"
+      :title="$t('pmedicines.AddDrug')"
       :visible.sync="insertDrugVisible"
       :close-on-click-modal="false"
       width="60%"
@@ -480,11 +644,88 @@
               <el-input v-model="insertDrugInfo.englishname" />
             </el-form-item>
           </el-col>
+                    <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.DosingWay')">
+              <el-select
+                v-model="insertDrugInfo.dosingway"
+                filterable
+                @change="medicateMethodsChange"
+              >
+                <el-option
+                  v-for="(medicateMethods,index) in medicateMethodsList"
+                  :label="medicateMethods.name"
+                  :value="medicateMethods.id"
+                  :key="index"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="10">
           <el-col :xl="8">
             <el-form-item :label="$t('pmedicines.CommonName')">
               <el-input v-model="insertDrugInfo.commonname" />
             </el-form-item>
           </el-col>
+          <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.Brand')">
+              <el-select v-model="insertDrugInfo.brandid" filterable @change="productChange">
+                <el-option
+                  v-for="(productInfo,index) in productList"
+                  :label="productInfo.companyname"
+                  :value="productInfo.id"
+                  :key="index"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.ProviderName')">
+              <el-select v-model="insertDrugInfo.providerid" filterable>
+                <el-option
+                  v-for="(supplierInfo,index) in supplierList"
+                  :label="supplierInfo.companyname"
+                  :value="supplierInfo.id"
+                  :key="index"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="10">
+          <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.UsingMethod')">
+              <el-select v-model="insertDrugInfo.usingmethod" filterable>
+                <el-option
+                  v-for="(usageMethods,index) in usageMethodsList"
+                  :label="usageMethods.name"
+                  :value="usageMethods.id"
+                  :key="index"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.Vaccinatetimes')">
+              <el-select v-model="insertDrugInfo.vaccinatetimes" filterable>
+                <el-option
+                  v-for="(vaccinateTimes,index) in vaccinateTimesList"
+                  :label="vaccinateTimes.name"
+                  :value="vaccinateTimes.id"
+                  :key="index"
+                />
+              </el-select>
+            </el-form-item>
+
+          </el-col>
+          <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.Vaccinateinterval')">
+              <el-input type="number" v-model="insertDrugInfo.vaccinateinterval" />
+            </el-form-item>
+          </el-col>
+
         </el-row>
 
         <el-row :gutter="10">
@@ -499,8 +740,26 @@
             </el-form-item>
           </el-col>
           <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.InstorePrice')">
+              <el-input disabled type="number" v-model="insertDrugInfo.instoreprice" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="10">
+          <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.CostPrice')">
+              <el-input type="number" v-model="insertDrugInfo.costprice" />
+            </el-form-item>
+          </el-col>
+          <el-col :xl="8">
             <el-form-item :label="$t('pmedicines.DoNotDiscount')">
               <el-switch v-model="insertDrugInfo.donotdiscount"></el-switch>
+            </el-form-item>
+          </el-col>
+          <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.AllowSaleForNoneStock')">
+              <el-switch v-model="insertDrugInfo.allowsalefornonestock"></el-switch>
             </el-form-item>
           </el-col>
         </el-row>
@@ -525,10 +784,26 @@
 
         <el-row :gutter="10">
           <el-col :xl="8">
-          <el-form-item
+            <el-form-item
+              :label="$t('pmedicines.InstoreUnitName')"
+              prop="instoreunit"
+              :rules="[{ required: true, message: '请选择出入库单位' }]"
+            >
+              <el-select v-model="insertDrugInfo.instoreunit" filterable @change="insertUnitChange">
+                <el-option
+                  v-for="(unit,index) in unitList"
+                  :label="unit.name"
+                  :value="unit.id"
+                  :key="index"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :xl="8">
+            <el-form-item
               :label="$t('pmedicines.Unit')"
-              prop="unit"
-              :rules="[{ required: true, message: '请选择单位' }]"
+              prop="outstoreunit"
+              :rules="[{ required: true, message: '请选择投药单位' }]"
             >
               <el-select v-model="insertDrugInfo.unit" filterable @change="outUnitChange">
                 <el-option
@@ -541,7 +816,28 @@
             </el-form-item>
           </el-col>
           <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.SpecificInMath')" class="specificInMath">
+              1
+              {{instoreUnitName}}
+              =
+              <el-input type="number" v-model="insertDrugInfo.specificmath" />
+              {{outstoreUnitName}}
+            </el-form-item>
           </el-col>
+        </el-row>
+
+        <el-row :gutter="10">
+          <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.Specific')">
+              <el-input v-model="insertDrugInfo.specific" />
+            </el-form-item>
+          </el-col>
+          <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.Count')">
+              <el-input disabled v-model="insertDrugInfo.count"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :xl="8"></el-col>
         </el-row>
       </el-form>
       <el-form :model="insertDrugInfo" :label-width="formLabelWidth">
@@ -561,7 +857,7 @@
     </el-dialog>
 
     <el-dialog
-      title="美容详情"
+      :title="$t('pmedicines.DrugDetail')"
       :visible.sync="showDrugsDetailInfo"
       :close-on-click-modal="false"
       width="60%"
@@ -582,13 +878,43 @@
         </el-row>
         <el-row :gutter="10">
           <el-col :xl="8">
-            <el-form-item :label="$t('pmedicines.DrugsNameLetter')" >{{drugsDetailInfo.drugsnameletter}}</el-form-item>
+            <el-form-item
+              :label="$t('pmedicines.DrugsNameLetter')"
+            >{{drugsDetailInfo.drugsnameletter}}</el-form-item>
           </el-col>
           <el-col :xl="8">
             <el-form-item :label="$t('pmedicines.EnglishName')">{{drugsDetailInfo.englishname}}</el-form-item>
           </el-col>
+                    <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.DosingWay')">{{drugsDetailInfo.dosingwayname}}</el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="10">
           <el-col :xl="8">
             <el-form-item :label="$t('pmedicines.CommonName')">{{drugsDetailInfo.commonname}}</el-form-item>
+          </el-col>
+          <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.Brand')">{{drugsDetailInfo.brand}}</el-form-item>
+          </el-col>
+          <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.ProviderName')">{{drugsDetailInfo.providername}}</el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="10">
+          <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.UsingMethod')">{{drugsDetailInfo.usingmethodname}}</el-form-item>
+          </el-col>
+          <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.Vaccinatetimes')">
+              {{drugsDetailInfo.vaccinatetimesText}}
+            </el-form-item>
+          </el-col>
+          <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.Vaccinateinterval')">
+              {{drugsDetailInfo.vaccinateinterval}}
+            </el-form-item>
           </el-col>
         </el-row>
 
@@ -605,8 +931,26 @@
           </el-col>
           <el-col :xl="8">
             <el-form-item
+              :label="$t('pmedicines.InstorePrice')"
+            >{{drugsDetailInfo.instoreprice| currency('$')}}</el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="10">
+          <el-col :xl="8">
+            <el-form-item
+              :label="$t('pmedicines.CostPrice')"
+            >{{drugsDetailInfo.costprice| currency('$')}}</el-form-item>
+          </el-col>
+          <el-col :xl="8">
+            <el-form-item
               :label="$t('pmedicines.DoNotDiscount')"
             >{{drugsDetailInfo.donotdiscount?'是':'否'}}</el-form-item>
+          </el-col>
+          <el-col :xl="8">
+            <el-form-item
+              :label="$t('pmedicines.AllowSaleForNoneStock')"
+            >{{drugsDetailInfo.allowsalefornonestock?'是':'否'}}</el-form-item>
           </el-col>
         </el-row>
 
@@ -625,12 +969,31 @@
         <el-row :gutter="10">
           <el-col :xl="8">
             <el-form-item
-              :label="$t('pmedicines.Unit')"
-            >{{drugsDetailInfo.unitname}}</el-form-item>
+              :label="$t('pmedicines.InstoreUnitName')"
+            >{{drugsDetailInfo.instoreunitname}}</el-form-item>
           </el-col>
           <el-col :xl="8">
-            
+            <el-form-item :label="$t('pmedicines.Unit')">{{drugsDetailInfo.unitname}}</el-form-item>
           </el-col>
+          <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.SpecificInMath')" class="specificInMath">
+              1
+              {{drugsDetailInfo.instoreunitname}}
+              =
+              {{drugsDetailInfo.specificoutmath}}
+              {{drugsDetailInfo.unitname}}
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="10">
+          <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.Specific')">{{drugsDetailInfo.specific}}</el-form-item>
+          </el-col>
+          <el-col :xl="8">
+            <el-form-item :label="$t('pmedicines.Count')">{{drugsDetailInfo.count}}</el-form-item>
+          </el-col>
+          <el-col :xl="8"></el-col>
         </el-row>
       </el-form>
       <el-form :model="drugsDetailInfo" :label-width="formLabelWidth">
@@ -732,7 +1095,7 @@ export default {
         label: "name"
       },
       formLabelWidth: "120px",
-      drugType: 2285,
+      drugType: 1049,
       input: "",
       // 分页参数 Satrt
       total: 0,
@@ -745,15 +1108,15 @@ export default {
         currentPage: 1,
         pageSize: 10,
         params: {
-          drugType: 2285,
+          drugType: 1049,
           deleted: 0,
           canOrder: 1,
           canSell: 1
         }
       },
       tableData: [],
-      categoryId: 1004,
-      categoryName: "美容目录",
+      categoryId: 1049,
+      categoryName: "药品目录",
       showTreeVisible: false,
       editDrugVisible: false,
       insertDrugVisible: false,
@@ -769,13 +1132,18 @@ export default {
         }
       },
       insertBaseInfo: {
-        drugtype: 2285,
-        category: 1004,
+        drugtype: 1049,
+        category: 1049,
         barcode: "",
+        providerid: null,
         drugsName: "",
         description: "",
+        instoreprice: 0,
         outstoreprice: null,
         unit: null,
+        specific: "",
+        count: 0,
+        usingmethod: null,
         englishname: null,
         drugsnameletter: "",
         instoreunit: null,
@@ -783,14 +1151,45 @@ export default {
         memberprice: null,
         donotdiscount: true,
         itemcode: "",
+        brand: null,
+        allowsalefornonestock: false,
+        dosingway: null,
         categoryname: "",
+        costprice: null,
         commonname: "",
+        specificinmath: 1,
+        specificoutmath: 1,
+        specificmath: null,
         outstoreunit: null,
         mincount: null,
         canorder: true,
         cansell: true,
+        brandid: null,
+        unitname: null,
+        instoreunitname: null,
+        outstoreunitname: null,
+        //接种间隔
+        vaccinatetimes:null,
+        //接种次数
+        vaccinateinterval:null,
+        dosingwayname: null
       },
       insertDrugInfo: {},
+      productList: [],
+      supplierList: [],
+      supplierParams: {
+        currentPage: 1,
+        pageSize: 10000,
+        params: {
+          isdeleted: 0
+        }
+      },
+      usageMethodsList: [],
+      medicateMethodsList: [],
+      //接种间隔
+      vaccinateTimesList:[],
+      instoreUnitName: "入库单位",
+      outstoreUnitName: "出库单位",
       rules: {
         outstoreprice: [
           { required: true, message: "请输入销售价" },
@@ -812,7 +1211,7 @@ export default {
         currentPage: 1,
         pageSize: 100000,
         params: {
-          parentid: 1004,
+          parentid: 1049,
           status: 0,
           deleted: 0
         }
@@ -833,25 +1232,26 @@ export default {
      * 初始化目录
      */
     _this.GetTreeData();
-
     /**
      * 初始化产品数据
      */
     _this.GetTableData();
     //加载单位下拉
     _this.loadUnitList();
+    //加载供应商下拉
+    _this.loadSupplierList();
+    //加载生产商下拉
+    _this.loadProductList();
+    //加载投药方式
+    _this.loadMedicateMethods();
+    //加载使用方式
+    _this.loadUsageMethods();
     //加载机构列表
     _this.loadOrgList();
+    //加载接种间隔
+    _this.loadVaccinatetimes();
   },
   methods: {
-        outUnitChange(value) {
-      var _this = this;
-      var unitName = value
-        ? _this.unitList.find((ele) => ele.id == value).name
-        : "";
-      _this.outstoreUnitName = unitName;
-      _this.insertDrugInfo.unitname = unitName;
-    },
     fullCateData() {
       var _this = this;
       _this.selectCateOrgIDArray = [];
@@ -873,15 +1273,13 @@ export default {
         return;
       }
       _this.vloading = true;
-      console.log("目录下发的时候选择的机构为", _this.selectCateOrgIDArray);
       _this.$store
         .dispatch("hq/psyslistHq", {
-          status: 3,
+          status: 1,
           orgIds: _this.selectCateOrgIDArray,
           isDelete: 1
         })
         .then(res => {
-          console.log("返回的数据为",res)
           if (res.data.code != 200) {
             _this.$message({
               showClose: true,
@@ -900,7 +1298,6 @@ export default {
           _this.vloading = false;
         })
         .catch((err) => {
-          console.log("下发目录",err)
           if (err.hasOwnProperty("code")) {
             _this.$message({
               showClose: true,
@@ -909,7 +1306,7 @@ export default {
             });
           } else {
             _this.$message({
-              message: "下发失败",
+              message: "数据加载失败，请稍后重试",
               type: "error"
             });
           }
@@ -982,7 +1379,6 @@ export default {
     showCatalogTree() {
       var _this = this;
       _this.showTreeVisible = true;
-      // _this.$refs['insertdrugsinfo'].resetFields();
     },
     append(data) {
       var _this = this;
@@ -1015,8 +1411,6 @@ export default {
           type: "warning"
         })
         .then(() => {
-          console.log("点击成功以后的数据为",ids);
-          _this.loading = true;
           _this.$store
             .dispatch("commondelete/deleteInfo", {
               ids: ids,
@@ -1098,7 +1492,7 @@ export default {
         .dispatch("hq/HqPMedicines", {
           orgIds: _this.selectOrgIDArray,
           ids: drugids,
-          drugType:2285
+          drugType: 1049
         })
         .then(res => {
           if (res.data.code == 200) {
@@ -1118,8 +1512,7 @@ export default {
           _this.isRepeat = false;
           _this.orgLoading = false;
         })
-        .catch((err) => {
-          console.log("数据为",err)
+        .catch(err => {
           if (err.hasOwnProperty("code")) {
             _this.$message({
               showClose: true,
@@ -1208,16 +1601,16 @@ export default {
     },
     saveEditDrugsInfo(formName) {
       var _this = this;
-      console.log("编辑的结果为", formName);
       _this.$refs[formName].validate(valid => {
         if (valid) {
           _this.loading = true;
           _this.editDrugInfo.deleted = _this.editDrugInfo.deleted ? 1 : 0;
           _this.editDrugInfo.canorder = _this.editDrugInfo.canorder ? 1 : 0;
           _this.editDrugInfo.cansell = _this.editDrugInfo.cansell ? 1 : 0;
+          _this.editDrugInfo.specificinmath = 1;
+          _this.editDrugInfo.specificoutmath = _this.editDrugInfo.specificmath;
+          _this.editDrugInfo.mincount = _this.editDrugInfo.specificmath;
           _this.editDrugInfo.updatestamp = null;
-
-          console.log("需要提交的对象为", _this.editDrugInfo);
           _this.$store
             .dispatch("pmedicines/updateDrugsAPI", _this.editDrugInfo)
             .then(res => {
@@ -1238,7 +1631,19 @@ export default {
               }
               _this.loading = false;
             })
-            .catch(() => {
+            .catch(err => {
+              if (err.hasOwnProperty("code")) {
+                _this.$message({
+                  showClose: true,
+                  message: err.msg,
+                  type: "error"
+                });
+              } else {
+                _this.$message({
+                  message: "数据加载失败，请稍后重试",
+                  type: "error"
+                });
+              }
               _this.loading = false;
             });
         } else {
@@ -1248,7 +1653,6 @@ export default {
     },
     deleteObjectValue(value) {
       var _this = this;
-      console.log("属性值为", value);
       if (_this.editDrugInfo.hasOwnProperty(value)) {
         delete _this.editDrugInfo[value];
       }
@@ -1260,6 +1664,13 @@ export default {
         .then(res => {
           if (res.code == 200 && res.data.length > 0) {
             _this.drugsDetailInfo = res.data[0];
+            var times=_this.drugsDetailInfo.vaccinatetimes;
+            _this.vaccinateTimesList.forEach((itemInfo)=>{
+                if(itemInfo.id==times) {
+                    _this.drugsDetailInfo.vaccinatetimesText=itemInfo.name;
+                }
+            })
+            
 
             _this.showDrugsDetailInfo = true;
           } else {
@@ -1282,10 +1693,14 @@ export default {
           _this.insertDrugInfo.deleted = _this.insertDrugInfo.deleted ? 1 : 0;
           _this.insertDrugInfo.canorder = _this.insertDrugInfo.canorder ? 1 : 0;
           _this.insertDrugInfo.cansell = _this.insertDrugInfo.cansell ? 1 : 0;
-          _this.insertDrugInfo.categoryname=_this.categoryName;
+          _this.insertDrugInfo.specificinmath = 1;
+          _this.insertDrugInfo.specificoutmath =
+            _this.insertDrugInfo.specificmath;
+          _this.insertDrugInfo.mincount = _this.insertDrugInfo.specificmath;
           _this.$store
             .dispatch("pmedicines/insertDrugsAPI", _this.insertDrugInfo)
             .then(res => {
+              console.log("数据上传完成以后的信息为", res);
               if (res.code == 200) {
                 _this.$message({
                   showClose: true,
@@ -1303,7 +1718,19 @@ export default {
               }
               _this.loading = false;
             })
-            .catch(() => {
+            .catch(err => {
+              if (err.hasOwnProperty("code")) {
+                _this.$message({
+                  showClose: true,
+                  message: err.msg,
+                  type: "error"
+                });
+              } else {
+                _this.$message({
+                  message: "数据加载失败，请稍后重试",
+                  type: "error"
+                });
+              }
               _this.loading = false;
             });
         } else {
@@ -1316,6 +1743,20 @@ export default {
       _this.insertDrugInfo = _this.insertBaseInfo;
       _this.$refs[formName].resetFields();
       _this.hideDialog();
+    },
+    //投药方式发生改变时
+    medicateMethodsChange(value) {
+      var _this = this;
+      _this.insertDrugInfo.dosingwayname = value
+        ? _this.medicateMethodsList.find(ele => ele.id == value).name
+        : "";
+    },
+    //生产商发生改变时
+    productChange(value) {
+      var _this = this;
+      _this.insertDrugInfo.brand = value
+        ? _this.productList.find(ele => ele.id == value).companyname
+        : "";
     },
     //处理商品的大写拼音值
     handlerDrugName() {
@@ -1355,6 +1796,89 @@ export default {
         }
       }
     },
+    insertUnitChange(value) {
+      var _this = this;
+      var unitName = value
+        ? _this.unitList.find(ele => ele.id == value).name
+        : "";
+      _this.instoreUnitName = unitName;
+      _this.insertDrugInfo.instoreunitname = unitName;
+      _this.insertDrugInfo.outstoreunit = value;
+      _this.insertDrugInfo.outstoreunitname = unitName;
+    },
+    outUnitChange(value) {
+      var _this = this;
+      var unitName = value
+        ? _this.unitList.find(ele => ele.id == value).name
+        : "";
+      _this.outstoreUnitName = unitName;
+      _this.insertDrugInfo.unitname = unitName;
+    },
+    //加载投药方式
+    loadMedicateMethods() {
+      var _this = this;
+      _this.$store
+        .dispatch("pmedicines/getMedicateMethods", { parentid: 2335 })
+        .then(res => {
+          _this.medicateMethodsList = res.data;
+          _this.loading = false;
+        })
+        .catch(() => {
+          _this.loading = false;
+        });
+    },
+    //加载使用方式
+    loadUsageMethods() {
+      var _this = this;
+      _this.$store
+        .dispatch("pmedicines/getUsageMethods", { parentid: 2287 })
+        .then(res => {
+          _this.usageMethodsList = res.data;
+          _this.loading = false;
+        })
+        .catch(() => {
+          _this.loading = false;
+        });
+    },
+    //加载接种间隔
+    loadVaccinatetimes() {
+      var _this = this;
+      _this.$store
+        .dispatch("pmedicines/getUsageMethods", { parentid: 1077 })
+        .then(res => {
+          _this.vaccinateTimesList = res.data;
+          _this.loading = false;
+        })
+        .catch(() => {
+          _this.loading = false;
+        });
+    },
+    //加载供应商数据
+    loadSupplierList() {
+      var _this = this;
+      _this.$store
+        .dispatch("supplier/getSupplierList", _this.supplierParams)
+        .then(res => {
+          _this.supplierList = res.data.list;
+          _this.loading = false;
+        })
+        .catch(() => {
+          _this.loading = false;
+        });
+    },
+    //加载生产商数据
+    loadProductList() {
+      var _this = this;
+      _this.$store
+        .dispatch("product/getProductList", _this.supplierParams)
+        .then(res => {
+          _this.productList = res.data.list;
+          _this.loading = false;
+        })
+        .catch(() => {
+          _this.loading = false;
+        });
+    },
     showAddDrug() {
       var _this = this;
       _this.insertDrugVisible = true;
@@ -1376,15 +1900,18 @@ export default {
     },
     showEditContent(id) {
       var _this = this;
-      console.log("需要编辑的id为", id);
       _this.$store
         .dispatch("pmedicines/getPmedicinesInfo", { id: id })
         .then(res => {
+          console.log("获取到的数据为",res);
           if (res.code == 200 && res.data.length > 0) {
             _this.editDrugInfo = res.data[0];
             _this.editDrugInfo.canorder = res.data[0].canorder == 1;
             _this.editDrugInfo.cansell = res.data[0].cansell == 1;
             _this.editDrugInfo.deleted = res.data[0].deleted == 1;
+            _this.editDrugInfo.specificmath= res.data[0].specificoutmath;
+            _this.insertUnitChange(_this.editDrugInfo.instoreunit);
+            _this.outUnitChange(_this.editDrugInfo.unit);
             _this.editDrugVisible = true;
           } else {
             _this.$message({
@@ -1408,7 +1935,6 @@ export default {
           drugType: _this.drugType
         })
         .then(res => {
-          
           _this.data = res;
           if (_this.data.length > 0) {
             _this.data.forEach(function(info) {
@@ -1425,6 +1951,11 @@ export default {
      * {点击数据} nodeData
      */
     handleClick: function(nodeData) {
+      if (nodeData.id == 1049) {
+        this.categoryId = -1;
+      } else {
+        this.categoryId = nodeData.id;
+      }
       this.categoryId = nodeData.id;
       this.categoryName = nodeData.name;
       this.insertDrugInfo.category = nodeData.id;
@@ -1435,8 +1966,9 @@ export default {
      * 获取Table数据
      */
     GetTableData: function() {
+      var _this = this;
       this.loading = true;
-      if (this.categoryId == 1004) {
+      if (this.categoryId == 1049) {
         this.params.params.category = -1;
       } else {
         this.params.params.category = this.categoryId;
@@ -1450,7 +1982,18 @@ export default {
           this.limit = res.pageSize;
           this.loading = false;
         })
-        .catch(() => {
+        .catch((err) => {
+          if (err.hasOwnProperty("code")) {
+            _this.$message({
+              message: err.msg,
+              type: "error"
+            });
+          } else {
+            _this.$message({
+              message: "数据加载失败，请稍后重试",
+              type: "error"
+            });
+          }
           this.loading = false;
         });
     },
@@ -1506,6 +2049,14 @@ export default {
     }
     .el-tree-node__content {
       height: 30px;
+    }
+  }
+  .el-form {
+    .specificInMath {
+      display: flex;
+      .el-input {
+        width: 85px;
+      }
     }
   }
   .selectOrgClass {

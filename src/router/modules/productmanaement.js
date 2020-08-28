@@ -42,7 +42,20 @@ const productRouter = {
       name: 'Cosmetology',
       component: () => import('@/views/cosmetology/index'),
       meta: { title: 'Cosmetology' }
+    },
+    {
+      path: 'deworming',
+      name: 'Deworming',
+      component: () => import('@/views/productmanagement/deworming/index'),
+      meta: { title: 'Deworming' }
+    },
+    {
+      path: 'vaccines',
+      name: 'Vaccines',
+      component: () => import('@/views/productmanagement/vaccines/index'),
+      meta: { title: 'Vaccines' }
     }
+
   ]
 }
 
